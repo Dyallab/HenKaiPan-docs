@@ -1,0 +1,44 @@
+{
+  "name": "@dyallab/docs",
+  "version": "1.1.0",
+  "description": "Documentación oficial de HenKaiPan - User guides, deployment, arquitectura y diseño",
+  "type": "module",
+  "private": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./self-hosted/*": "./src/self-hosted/*",
+    "./app/*": "./src/app/*",
+    "./landing/*": "./src/landing/*"
+  },
+  "files": [
+    "src",
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": []
+  },
+  "keywords": [
+    "henkaipan",
+    "documentation",
+    "aspm",
+    "application-security"
+  ],
+  "author": "HenKaiPan Team",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}

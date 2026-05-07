@@ -1,0 +1,354 @@
+---
+title: SSE Implementation
+description: Technical implementation details of Server-Sent Events in HenKaiPan
+---
+
+# SSE (Server-Sent Events) - Technical Implementation
+
+## Overview
+
+Real-time event system for pushing updates from backend to frontend without polling.
+
+## Architecture
+
+### SSE Client Singleton
+
+The frontend uses a **single shared SSEClient instance** (singleton pattern). It is created once in `DashboardLayout.astro` and shared across all pages:
+
+```typescript
+// DashboardLayout.astro — creates the singleton
+const sseClient = getSSEClient();
+sseClient.connect();
+sseClient.on("notification_created", () => { ... });
+
+// detail.astro — reuses the same singleton
+const sseClient = getSSEClient(); // returns existing instance
+sseClient.on("finding_summary_completed", (event) => { ... });
+```
+
+**Important:** Never call `getSSEClient({ types: [...] })` expecting it to filter which events the browser receives. The `types` option was removed — the EventSource now registers listeners for ALL known event types, and client-side filtering is done via `.on()` handlers.
+
+### Backend (Go)
+
+```
+internal/events/
+├── events.go          # Hub, Client, Publish/Subscribe core
+├── builder.go        # Type-safe event builders
+└── redis_bridge.go   # Redis pub/sub bridge for cross-process delivery
+
+internal/handlers/
+└── sse.go             # HTTP handler for /api/events
+
+internal/tasks/
+├── finding_summarize.go  # Publishes summary events
+└── finding_validate.go   # Publishes validation events
+```
+
+### Cross-Process Event Delivery
+
+Since the API and worker run as separate processes, SSE events published by the
+worker need to reach the API's connected browser clients. This is handled by a
+Redis pub/sub bridge:
+
+1. **Worker** calls `events.Publish()` → event goes to in-memory hub AND to Redis channel `aspm:events`
+2. **API** subscribes to `aspm:events` via `events.SubscribeFromRedis()` → receives events from Redis and dispatches them to its in-memory hub → delivered to SSE clients
+
+This ensures real-time updates work correctly even when the API and worker are
+separate processes (common in Docker Compose or Kubernetes deployments).
+
+### Request Deduplication
+
+The `/api/findings/{id}/summary` endpoint checks the finding's `summary_state`
+before enqueuing a task:
+
+- `summary_state = "pending"` → returns 202 Accepted immediately, no duplicate task
+- `summary_state = "ready"` → returns 200 OK, summary already available
+- `summary_state = "none"` or empty → enqueues task with `asynq.Unique(5min)` to prevent duplicate queue entries
+
+### Frontend (TypeScript)
+
+```
+frontend/src/lib/
+├── sse.ts           # SSEClient class with reconnection
+├── sse-hooks.ts     # useSSE hook for Astro
+└── sse-ui.ts        # Connection status indicator
+```
+
+## Event Types
+
+| Event Type | Payload | When |
+|------------|---------|------|
+| `finding_summary_completed` | `{ finding_id, summary }` | AI generates finding summary |
+| `finding_validation_completed` | `{ finding_id, confidence, reasoning, fp_likelihood }` | AI validates finding |
+| `scan_completed` | `{ scan_id, project_id, scanner, finding_count }` | Security scan finishes |
+| `scan_failed` | `{ scan_id, project_id, scanner, error }` | Security scan fails |
+| `webhook_delivered` | `{ webhook_id, delivery_id, event_type, status_code }` | Webhook delivered successfully |
+| `webhook_failed` | `{ webhook_id, delivery_id, event_type, error }` | Webhook delivery failed |
+| `risk_acceptance_approved` | `{ risk_acceptance_id, finding_id, user_id, review_notes }` | Risk acceptance approved |
+| `risk_acceptance_rejected` | `{ risk_acceptance_id, finding_id, user_id, review_notes }` | Risk acceptance rejected |
+| `policy_violation` | `{ policy_id, policy_name, finding_id, user_id, action }` | Policy violation detected |
+| `scheduled_task_completed` | `{ schedule_id, task_type, project_id, success }` | Scheduled task completes |
+
+## Usage Examples
+
+### Backend - Publishing Events
+
+```go
+import "aspm/internal/events"
+
+// Using builder (recommended)
+events.NewFindingSummaryCompleted(findingID, summary).
+    WithFindingID(findingID).
+    WithProjectID(projectID).
+    Publish()
+
+// Using manual construction
+events.Publish(events.Event{
+    Type: events.EventFindingSummaryCompleted,
+    Data: map[string]string{
+        "finding_id": findingID,
+        "summary": summary,
+    },
+    Metadata: events.EventMetadata{
+        UserID: userID,
+    },
+})
+```
+
+### Frontend - Subscribing to Events
+
+```typescript
+import { getSSEClient } from "@lib/sse";
+
+// Get or create the SSE client singleton
+// The client is already connected by DashboardLayout
+const client = getSSEClient();
+
+// Subscribe to specific event
+client.on("finding_summary_completed", (event) => {
+  console.log("Summary received:", event.data.summary);
+  
+  // Refresh UI
+  refreshFinding(event.data.finding_id);
+});
+
+// Get connection stats
+const stats = client.getStats();
+console.log("Connected:", stats.connected);
+console.log("Events received:", stats.eventsReceived);
+```
+
+### Frontend - Using Hooks (Astro)
+
+```typescript
+import { useSSE, onFindingSummary } from "@lib/sse-hooks";
+
+// Create SSE connection (uses shared singleton)
+const sse = useSSE();
+
+// Subscribe with helper
+onFindingSummary((findingId, summary) => {
+  console.log(`Finding ${findingId} summarized:`, summary);
+}, sse);
+
+// Or subscribe manually
+sse.on("finding_validation_completed", (event) => {
+  const { finding_id, confidence, reasoning } = event.data;
+  updateAnalysisUI(finding_id, confidence, reasoning);
+});
+```
+
+### Connection Status Indicator
+
+```typescript
+import { initSSEStatusIndicator } from "@lib/sse-ui";
+
+// Add status indicator to page
+const indicator = initSSEStatusIndicator("sse-status", {
+  debug: false,
+});
+
+// Indicator automatically shows:
+// - Green "Live" when connected
+// - Amber "Reconnecting (N)" when reconnecting
+// - Red "Disconnected" when failed
+```
+
+## API Endpoints
+
+### GET /api/events
+
+Main SSE endpoint for event streaming.
+
+**Query Parameters:**
+- `types` (optional): Comma-separated list of event types to filter
+- `project_id` (optional): Filter events by project ID
+
+**Headers:**
+```
+Content-Type: text/event-stream
+Cache-Control: no-cache
+Connection: keep-alive
+```
+
+**Example:**
+```bash
+curl -N http://localhost:8080/api/events?types=finding_summary_completed
+```
+
+### GET /api/events/stats
+
+Returns statistics about connected SSE clients.
+
+**Response:**
+```json
+{
+  "total_clients": 5,
+  "by_type": {
+    "finding_summary_completed": 3,
+    "finding_validation_completed": 2,
+    "*": 1
+  }
+}
+```
+
+## Connection Management
+
+### Reconnection Strategy
+
+The SSE client implements exponential backoff:
+
+- Initial delay: 1 second
+- Multiplier: 2x
+- Maximum delay: 30 seconds
+- Maximum attempts: Infinity (configurable)
+
+### Scoping
+
+Events can be scoped to users and projects:
+
+```go
+// Backend: Add metadata when publishing
+events.NewFindingSummaryCompleted(findingID, summary).
+    WithUserID(userID).
+    WithProjectID(projectID).
+    Publish()
+
+// Frontend: Subscribe with scope
+const client = getSSEClient({
+  projectId: "project-123",
+});
+```
+
+Only events matching the user/project scope will be delivered.
+
+## Error Handling
+
+### Backend
+
+- Buffer full: Event skipped with warning log
+- Marshal error: Event skipped with warning log
+- Client disconnect: Automatic cleanup
+
+### Error Handling
+
+```typescript
+// Handle individual event errors
+client.on("finding_summary_completed", (event) => {
+  try {
+    processEvent(event);
+  } catch (err) {
+    console.error("Failed to process event:", err);
+    // Show error toast to user
+  }
+});
+```
+
+## Testing
+
+### Backend
+
+```bash
+# Start API server
+make dev-api
+
+# In another terminal, test SSE endpoint
+curl -N http://localhost:8080/api/events?types=finding_summary_completed
+
+# Trigger an event (e.g., request AI summary for a finding)
+curl -X POST http://localhost:8080/api/findings/{id}/summary \
+  -b "aspm_token={jwt_token}" \
+  -H "Content-Type: application/json"
+```
+
+### Frontend
+
+```bash
+# Start frontend
+cd frontend && pnpm dev
+
+# Open browser console to see SSE connection logs
+# Enable debug mode:
+const client = getSSEClient({ debug: true });
+```
+
+## Performance Considerations
+
+1. **Client Limits**: Each client has a 50-event buffer
+2. **Hub Buffer**: Global hub has 100-event buffer
+3. **Memory**: Each connection uses ~10KB RAM
+4. **Scalability**: Tested up to 100+ concurrent connections
+
+## Migration from Polling
+
+### Before (Polling)
+```typescript
+// Poll every 2 seconds
+const interval = setInterval(async () => {
+  const analysis = await api.getFindingAnalysis(findingId);
+  if (analysis) {
+    updateUI(analysis);
+    clearInterval(interval);
+  }
+}, 2000);
+```
+
+### After (SSE)
+
+```typescript
+// Subscribe to real-time updates (singleton already connected)
+const client = getSSEClient();
+
+client.on("finding_validation_completed", (event) => {
+  updateUI(event.data);
+});
+```
+
+## Troubleshooting
+
+### Events not received
+
+1. Check SSE connection in browser DevTools Network tab
+2. Verify event types match exactly (case-sensitive)
+3. Check project/user scoping filters
+4. Look for reconnection attempts in console
+
+### High memory usage
+
+1. Reduce event buffer size in `events.go`
+2. Implement event TTL for old events
+3. Limit concurrent connections per user
+
+### Connection drops
+
+1. Check nginx `X-Accel-Buffering` header
+2. Verify load balancer supports SSE
+3. Increase timeout settings
+
+## Future Enhancements
+
+- [ ] WebSocket fallback for older browsers
+- [ ] Event persistence (replay missed events)
+- [ ] Compression for large payloads
+- [ ] Rate limiting per client
+- [ ] Event acknowledgments

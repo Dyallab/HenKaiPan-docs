@@ -1,0 +1,311 @@
+---
+title: SSE Usage Guide
+description: How to use Server-Sent Events in HenKaiPan applications
+---
+
+# Server-Sent Events (SSE) - Usage Guide
+
+## ¿Qué es SSE?
+
+SSE (Server-Sent Events) es un sistema de notificaciones en tiempo real que permite al servidor enviar actualizaciones automáticas al cliente sin necesidad de polling.
+
+**En HenKaiPan lo usamos para:**
+- ✅ Notificar cuando un AI Summary está listo
+- ✅ Notificar cuando un AI Validation completa
+- ✅ Scans completados y fallidos
+- ✅ Webhooks, risk acceptances, policy violations, notificaciones
+- ✅ Cross-process: worker events llegan al API vía Redis pub/sub
+
+## Beneficios vs Polling
+
+| Aspecto | Polling (antes) | SSE (ahora) |
+|---------|-----------------|-------------|
+| **Latencia** | 2-5 segundos | ~100ms |
+| **Requests** | 1 cada 2 segundos | 1 inicial + eventos |
+| **UX** | Espera manual | Actualización automática |
+| **Recursos** | Alto consumo | Mínimo |
+
+---
+
+## Configuración de Imports (Aliases)
+
+El proyecto usa **aliases** para evitar `../../../`:
+
+```typescript
+// ❌ Antes (mala legibilidad)
+import { getSSEClient } from "../../../lib/sse";
+import { toast } from "../../../lib/toast";
+
+// ✅ Ahora (claro y limpio)
+import { getSSEClient } from "@lib/sse";
+import { toast } from "@lib/toast";
+```
+
+**Aliases disponibles:**
+
+| Alias | Ruta |
+|-------|------|
+| `@lib/*` | `src/lib/*` |
+| `@components/*` | `src/components/*` |
+| `@layouts/*` | `src/layouts/*` |
+| `@pages/*` | `src/pages/*` |
+| `@assets/*` | `src/assets/*` |
+
+---
+
+## Eventos Disponibles
+
+### 1. `finding_summary_completed`
+
+**Cuándo:** Cuando el AI genera un summary para un finding.
+
+**Payload:**
+```json
+{
+  "type": "finding_summary_completed",
+  "data": {
+    "finding_id": "abc123",
+    "summary": "This is a SQL injection vulnerability..."
+  },
+  "created_at": "2026-05-06T20:00:00Z"
+}
+```
+
+### 2. `finding_validation_completed`
+
+**Cuándo:** Cuando el AI valida un finding (AI Validate button).
+
+**Payload:**
+```json
+{
+  "type": "finding_validation_completed",
+  "data": {
+    "finding_id": "abc123",
+    "confidence": 0.95,
+    "reasoning": "This appears to be a true positive because...",
+    "fp_likelihood": "low"
+  },
+  "created_at": "2026-05-06T20:00:00Z"
+}
+```
+
+---
+
+## Uso en el Frontend
+
+### Ejemplo Básico
+
+```typescript
+import { getSSEClient } from "@lib/sse";
+
+// 1. Obtener el cliente SSE singleton (ya conectado por DashboardLayout)
+const client = getSSEClient();
+
+// 2. Suscribirse a eventos
+client.on("finding_summary_completed", (event) => {
+  console.log("Summary received:", event.data.summary);
+  
+  // Actualizar UI
+  refreshFinding(event.data.finding_id);
+  toast("AI summary completed!", "success");
+});
+
+// No necesitas llamar .connect() — el DashboardLayout ya lo inició
+```
+
+### Ejemplo en Componente Astro
+
+```astro
+---
+// En un componente .astro
+import { useSSE } from "@lib/sse-hooks";
+
+const sse = useSSE();
+
+sse.on("finding_summary_completed", (event) => {
+  console.log("Summary:", event.data.summary);
+});
+---
+
+<div>
+  <h2>Finding Detail</h2>
+  <!-- Tu UI aquí -->
+</div>
+```
+
+### Indicador de Estado (UI)
+
+```typescript
+import { initSSEStatusIndicator } from "@lib/sse-ui";
+
+// Agrega un indicador visual del estado de la conexión
+const indicator = initSSEStatusIndicator("sse-status", {
+  debug: false,
+});
+```
+
+**HTML:**
+```html
+<div id="sse-status"></div>
+```
+
+**Estados del indicador:**
+- 🟢 **"Live"** - Conectado
+- 🟡 **"Reconnecting (N)"** - Reconectando
+- 🔴 **"Disconnected"** - Desconectado
+
+---
+
+## Características Avanzadas
+
+### Reconexión Automática
+
+El cliente SSE implementa **exponential backoff**:
+
+```typescript
+const client = getSSEClient({
+  reconnectDelay: 1000,           // 1 segundo inicial
+  maxReconnectDelay: 30000,       // 30 segundos máximo
+  reconnectDelayMultiplier: 2,    // 2x cada intento
+  maxReconnectAttempts: 10,       // Opcional: límite de intentos
+});
+```
+
+### Filtrado Client-Side
+
+El cliente SSE es un **singleton** — se crea una vez en `DashboardLayout` y se comparte entre todas las páginas. Todos los eventos conocidos se registran automáticamente como listeners del EventSource. Filtrar eventos se hace con `.on()`:
+
+```typescript
+// Suscribirse solo a los eventos que te interesan
+const client = getSSEClient();
+client.on("finding_summary_completed", handler);
+
+// No necesitas especificar types — el cliente escucha todos los eventos
+// y los distribuye a los handlers registrados con .on()
+```
+
+### Debug Mode
+
+```typescript
+const client = getSSEClient({
+  debug: true, // Logs detallados en consola
+});
+```
+
+### Esperar por un Evento (Promise)
+
+```typescript
+import { waitForSSEEvent } from "@lib/sse-hooks";
+
+async function requestSummaryAndWait(findingId: string) {
+  // 1. Request summary
+  await api.requestSummary(findingId);
+  
+  // 2. Esperar evento SSE (timeout: 60s)
+  const event = await waitForSSEEvent(
+    "finding_summary_completed",
+    60000,
+    (e) => e.data.finding_id === findingId // Filtro opcional
+  );
+  
+  // 3. Usar resultado
+  return event.data.summary;
+}
+```
+
+---
+
+## Debugging
+
+### Ver Conexión SSE
+
+1. **Browser DevTools → Network**
+   - Filtrar por `events`
+   - Ver request a `/api/events`
+   - Estado debe ser `pending` (conexión abierta)
+
+2. **Browser Console**
+   ```typescript
+   const client = getSSEClient({ debug: true });
+   // Ver logs de conexión/desconexión
+   ```
+
+3. **Backend Logs**
+   ```
+   SSE client connected client_id=user-123 user_id=user-123 filters=1
+   SSE client disconnected client_id=user-123
+   ```
+
+### Ver Estadísticas
+
+```bash
+curl http://localhost:8080/api/events/stats
+```
+
+### Problemas Comunes
+
+**❌ Eventos no llegan:**
+1. Verificar que el tipo de evento está bien escrito (case-sensitive)
+2. Checkear que el cliente está conectado (`client.isConnected()`)
+3. Ver logs de reconexión en consola
+4. Verificar que el Redis bridge está inicializado (blog del API: `SSE Redis bridge initialized`)
+
+**❌ Conexión se cae:**
+1. Verificar headers de nginx (`X-Accel-Buffering: no`)
+2. Checkear timeout del load balancer
+3. Ver si hay errores de CORS
+
+---
+
+## Testing
+
+### Local
+
+```bash
+# 1. Start infra
+make dev-infra
+
+# 2. Start API
+make dev-api
+
+# 3. Start frontend
+cd frontend && pnpm dev
+
+# 4. Abrir browser en /dashboard/findings
+# 5. Click en "AI Summary" o "AI Validate"
+# 6. Ver actualización automática sin polling
+```
+
+### Ver en Acción
+
+1. Abrir DevTools → Network
+2. Filtrar por `events`
+3. Ver conexión SSE activa
+4. Click en "AI Summary"
+5. Ver evento llegando en ~100ms
+6. Ver UI actualizándose automáticamente
+
+---
+
+## Recursos Adicionales
+
+- **Implementación técnica:** `/sse/implementation`
+- **Código backend:** `HenKaiPan-app/internal/events/`
+- **Código frontend:** `HenKaiPan-app/frontend/src/lib/sse*`
+- **Ejemplo de uso:** `HenKaiPan-app/frontend/src/pages/dashboard/findings/detail.astro`
+
+---
+
+## FAQ
+
+**¿SSE funciona en todos los browsers?**  
+✅ Sí, todos los browsers modernos lo soportan. Para IE11 se necesita polyfill.
+
+**¿Qué pasa si se cae la conexión?**  
+✅ El cliente reconecta automáticamente con exponential backoff.
+
+**¿Puedo usar SSE para todo?**  
+❌ SSE es solo para eventos del servidor al cliente. Para cliente→servidor usar REST/WebSocket.
+
+**¿Necesito autenticación?**  
+✅ Sí, se usa cookie HTTP-only (`aspm_token`). El cliente SSE la envía automáticamente con `withCredentials: true`.
