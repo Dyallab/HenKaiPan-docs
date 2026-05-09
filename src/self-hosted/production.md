@@ -26,13 +26,13 @@ This guide covers deploying HenKaiPan ASPM in production environments with Docke
 
                     ┌──────────────┐
                     │   Worker     │
-                    │  (Docker     │
-                    │   socket)    │
+                    │  (embedded   │
+                    │   scanners)  │
                     └──────────────┘
 ```
 
 - **API** (`ghcr.io/dyallab/henkaipan-api`): Serves the frontend and REST API on port 8080. Exposes Prometheus metrics on port 9090.
-- **Worker** (`ghcr.io/dyallab/henkaipan-worker`): Executes background jobs (scans, webhooks, emails). Requires Docker socket access.
+- **Worker** (`ghcr.io/dyallab/henkaipan-worker`): Executes background jobs (scans, webhooks, emails). Scanner binaries are bundled in the image.
 - **PostgreSQL** (port 5432): Primary data store.
 - **Redis** (port 6379): Job queue, rate-limiting, and SSE event relay between worker and API processes.
 
@@ -155,15 +155,9 @@ REDIS_ADDR=redis:6379
 
 ## 4. Security Hardening
 
-### Docker Socket Risks
+### Scanner Execution
 
-The worker container mounts `/var/run/docker.sock` to run scanners in separate containers. This gives the worker effectively root access to the Docker host.
-
-**Mitigations:**
-
-1. **Run on a dedicated VM** — do not co-locate other containers with the same Docker socket exposure
-2. **Use Docker socket proxy** — tools like [`docker-socket-proxy`](https://github.com/Tecnativa/docker-socket-proxy) can restrict available API endpoints
-3. **Read-only root filesystem** — the worker container runs with minimal permissions; scanners are isolated per job
+Scanner binaries run directly within the worker process. All scanners are bundled in the worker Docker image, eliminating the need for Docker socket access.
 
 ### Network Security
 
@@ -337,7 +331,6 @@ Before going live:
 - [ ] PostgreSQL and Redis ports not exposed to the internet
 - [ ] Strong random `JWT_SECRET` and `SECRET_ENCRYPTION_KEY` generated
 - [ ] `.env` file permissions: `chmod 600 .env`
-- [ ] Docker socket access limited to the worker container only
 
 ### Reliability
 

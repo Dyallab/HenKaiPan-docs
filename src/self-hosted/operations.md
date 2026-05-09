@@ -10,7 +10,7 @@ The worker is responsible for executing background jobs:
 
 | Job Type | Description | Retries | Max Duration |
 |----------|-------------|---------|-------------|
-| `scan:run` | Execute a security scanner in Docker | 3 | 30 min |
+| `scan:run` | Execute a security scanner binary | 3 | 30 min |
 | `agent:validate` | AI-based finding validation | 5 | 10 min |
 | `agent:summarize` | AI finding summary generation | 5 | 60 sec |
 | `webhook:send` | Deliver webhook payload | 3 | 30 s |
@@ -31,8 +31,8 @@ docker compose up -d --scale worker=3
 
 **Important considerations:**
 
-- Each worker mounts `/var/run/docker.sock` — they are effectively root on the Docker host
-- Workers primarily contend for system resources (RAM, CPU) when running scanner containers
+- Scanner binaries run directly within the worker process — no container isolation per scan
+- Workers primarily contend for system resources (RAM, CPU) when running scanners
 - Adding workers increases scan concurrency but also increases peak resource usage
 - Multiple workers share the same Redis queue — no additional configuration needed
 - Workers automatically recover stuck scans on startup via `RecoverStuck()`
@@ -95,16 +95,6 @@ HenKaiPan supports 13 security scanners grouped into packs:
 | nuclei | 128 MB | 512 MB | 300 MB | Yes | Network scanning |
 
 *Network access required for vulnerability database updates.
-
-### Scanner Docker Images
-
-Scanner Dockerfiles are maintained in the [HenKaiPan-app repository](https://github.com/Dyallab/HenKaiPan). Custom scanner images can be built:
-
-```bash
-make build-scanner-slim
-```
-
-This builds `aspm-semgrep:latest`, `aspm-gosec:latest`, and `aspm-checkov:latest`.
 
 ### Scan Timeouts
 
@@ -176,9 +166,8 @@ docker compose logs worker | grep -i "scan\|error\|fail"
 
 | Error | Cause | Fix |
 |-------|-------|-----|
-| `Cannot connect to the Docker daemon` | Docker socket not mounted | Add `/var/run/docker.sock` to worker volumes |
-| `exec: "docker": not found` | Docker CLI missing in worker image | Worker image should include docker-cli |
-| `permission denied` | Docker socket permissions | Ensure worker runs with correct group |
+| `exec: "semgrep": not found` | Scanner binary missing from PATH | Use worker Docker image or install binaries |
+| `permission denied` | Binary not executable | Ensure scanner binaries have +x permission |
 | `context deadline exceeded` | Scan timed out | Increase timeout or reduce repo size |
 
 ### 5. Scans Timeout on Large Repos

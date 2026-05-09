@@ -164,7 +164,7 @@ sequenceDiagram
     
     Queue->>Worker: Deliver job
     Worker->>DB: Mark scan running
-    Worker->>Scanner: docker run
+    Worker->>Scanner: Execute scanner binary
     Scanner-->>Worker: Raw output
     
     alt Scan Success

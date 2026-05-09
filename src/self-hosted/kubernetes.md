@@ -6,7 +6,6 @@ This guide covers deploying HenKaiPan ASPM to a Kubernetes cluster.
 
 - Kubernetes cluster (kind, minikube, EKS, GKE, AKS, etc.)
 - kubectl configured to access your cluster
-- Docker socket available on worker nodes (for scanner execution)
 - StorageClass configured for PersistentVolumes
 - (Optional) NGINX Ingress Controller
 - (Optional) cert-manager for TLS
@@ -226,17 +225,14 @@ kubectl rollout status deployment/worker -n henkaipan
 
 ### Worker cannot run scans
 
-Verify Docker socket is mounted:
+Verify scanner binaries are available:
 
 ```bash
 kubectl exec -n henkaipan $(kubectl get pod -n henkaipan -l app=henkaipan-worker -o jsonpath='{.items[0].metadata.name}') \
-  -- docker ps
+  -- which semgrep trivy gitleaks
 ```
 
-If this fails, ensure:
-- Docker is running on the node
-- Socket path is correct (`/var/run/docker.sock`)
-- Worker has permissions to access the socket
+If this fails, ensure the worker image includes all scanner binaries.
 
 ### Database connection errors
 
@@ -292,8 +288,8 @@ Common causes:
 │  └──────┬──────┘    └─────────────┘                │
 │         │                                          │
 │  ┌──────▼──────┐                                   │
-│  │   Worker    │◄──── Docker Socket (host)         │
-│  │  (No ports) │     (for scanner execution)       │
+│  │   Worker    │                                   │
+│  │  (No ports) │  (embedded scanner binaries)      │
 │  └─────────────┘                                   │
 └─────────────────────────────────────────────────────┘
 ```

@@ -27,7 +27,7 @@ Automated recurring scans via cron-based scheduling:
 | Status | Meaning |
 |--------|---------|
 | Pending | Queued, waiting for worker |
-| Running | Scanner executing in Docker |
+| Running | Scanner executing |
 | Completed | Finished successfully |
 | Failed | Error during execution |
 | Cancelled | Manually stopped |
@@ -35,7 +35,7 @@ Automated recurring scans via cron-based scheduling:
 ## Scan Results
 
 ### Execution Log
-Real-time stdout/stderr from scanner container. Useful for debugging failures.
+Real-time stdout/stderr from scanner process. Useful for debugging failures.
 
 ### Summary Cards
 - Total findings by severity
@@ -66,16 +66,15 @@ Pre-configured scanner groups:
 
 ## Scanner Runtime
 
-Scanners execute in isolated Docker containers:
-- Worker mounts `/var/run/docker.sock`
-- Each scanner has dedicated image
+Scanners execute as binaries bundled in the worker image:
+- All scanner binaries pre-installed in worker container
 - Results parsed and normalized to common schema
 - Findings deduplicated via SHA256 fingerprint
 
 ## Troubleshooting Failed Scans
 
 1. **Check execution log** — Look for error messages
-2. **Verify Docker socket** — Worker must have access
+2. **Verify scanner binaries** — Worker image must include required scanners
 3. **Check repository access** — GitHub token may be expired
 4. **Review scanner requirements** — Some scanners need specific file types
 
