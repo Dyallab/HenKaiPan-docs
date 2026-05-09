@@ -1,6 +1,6 @@
 {
   "name": "@dyallab/docs",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Documentación oficial de HenKaiPan - User guides, deployment, arquitectura y diseño",
   "type": "module",
   "private": false,
