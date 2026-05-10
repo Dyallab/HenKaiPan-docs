@@ -51,7 +51,6 @@ First-time users see a guided 3-step onboarding:
 
 ## Quick Actions
 
-- **Run Global Scan** — Button in sidebar to immediately scan all projects
 - **View Reports** — Navigate to executive reports with trend charts
 - **Check Compliance** — See which controls have evidence coverage
 

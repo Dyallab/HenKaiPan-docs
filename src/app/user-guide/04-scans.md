@@ -8,10 +8,9 @@ The Scans page shows all security scan executions with logs, results, and schedu
 
 ### On-Demand Scans
 Manually triggered scans for immediate results:
-1. Click **Run Global Scan** in sidebar
-2. Or go to a specific project and select scanners
-3. Choose scanner pack: `all`, `sast`, `sca`, `secrets`, `iac`, `containers`
-4. Scan is enqueued and executed by worker
+1. Go to a specific project and select scanners
+2. Choose scanner pack: `all`, `sast`, `sca`, `secrets`, `iac`, `containers`
+3. Scan is enqueued and executed by worker
 
 ### Scheduled Scans
 Automated recurring scans via cron-based scheduling:
