@@ -18,6 +18,9 @@ Application Security Posture Management platform. Self-hosted edition.
 # 1. Run the installer (checks prerequisites, generates secrets)
 ./install.sh
 
+#    If you already have Ollama or don't need AI summaries:
+#    ./install.sh --skip-ollama
+
 # 2. Start
 docker compose up -d
 
@@ -41,8 +44,15 @@ kubectl port-forward svc/henkaipan-api 8080:8080 -n henkaipan
 cp .env.example .env
 # Edit .env: set JWT_SECRET, SECRET_ENCRYPTION_KEY
 # ADMIN_PASS is optional - defaults to "admin" if not set
+# If using Ollama, uncomment and set OLLAMA_URL and OLLAMA_MODEL
 docker compose up -d
 ```
+
+### Installer Options
+
+| Flag | Description |
+|------|-------------|
+| `--skip-ollama` | Skip Ollama installation, model pull, and Ollama environment configuration |
 
 ## Configuration
 
@@ -72,6 +82,7 @@ The self-hosted edition supports multiple AI providers with different capabiliti
 **Free tier (no license key):**
 - **Ollama** (FREE, self-hosted) — Summary ONLY. Set `OLLAMA_URL` and `OLLAMA_MODEL`
 - Summary generation for findings is available without a license key
+- Use `./install.sh --skip-ollama` if you already have Ollama running elsewhere or don't need AI summaries
 
 **Paid features (require license key with `ai-remediation` feature):**
 - **Remediation** — Automated fix suggestions via OpenRouter, Cloudflare, or Ollama
