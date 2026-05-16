@@ -51,6 +51,9 @@ on:
 jobs:
   security-scan:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write       # required for PR comments
     steps:
       - uses: actions/checkout@v4
 
@@ -62,6 +65,8 @@ jobs:
           project-id: ${{ secrets.HENKAIPAN_PROJECT_ID }}
           scanners: all
           fail-on-severity: critical
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ---
