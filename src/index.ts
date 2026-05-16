@@ -45,6 +45,17 @@ export const app = {
   },
   architecture: {
     queue: 'app/architecture/queue-architecture.md',
+    ciCdIntegration: 'app/architecture/ci-cd-integration.md',
+  },
+  ciCd: {
+    'github-actions': 'app/architecture/ci-cd/github-actions.md',
+    'gitlab-ci': 'app/architecture/ci-cd/gitlab-ci.md',
+    jenkins: 'app/architecture/ci-cd/jenkins.md',
+    'circleci': 'app/architecture/ci-cd/circleci.md',
+    docker: 'app/architecture/ci-cd/docker.md',
+    node: 'app/architecture/ci-cd/node.md',
+    python: 'app/architecture/ci-cd/python.md',
+    go: 'app/architecture/ci-cd/go.md',
   },
 } as const;
 
@@ -55,4 +66,5 @@ export const landing = {
 export type SelfHostedDoc = keyof typeof selfHosted;
 export type AppUserGuideDoc = keyof typeof app.userGuide;
 export type AppArchitectureDoc = keyof typeof app.architecture;
+export type AppCiCdDoc = keyof typeof app.ciCd;
 export type LandingDoc = keyof typeof landing;
