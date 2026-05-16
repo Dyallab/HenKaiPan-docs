@@ -221,7 +221,6 @@ sh """
 
 ## See Also
 
-- [CI/CD Integration Overview](./index.md)
 - [GitHub Actions Setup](./github-actions.md)
 - [GitLab CI Setup](./gitlab-ci.md)
 - [HenKaiPan Dashboard](/dashboard)

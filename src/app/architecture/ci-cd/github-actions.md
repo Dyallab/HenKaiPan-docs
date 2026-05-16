@@ -165,6 +165,5 @@ jobs:
 
 ## See Also
 
-- [CI/CD Integration Overview](./index.md)
 - [GitHub Action README](https://github.com/Dyallab/henkaipan-action)
 - [HenKaiPan Dashboard](/dashboard)

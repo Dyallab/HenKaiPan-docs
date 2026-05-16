@@ -260,7 +260,6 @@ If CircleCI runner and HenKaiPan are on the same internal network:
 
 ## See Also
 
-- [CI/CD Integration Overview](./index.md)
 - [GitHub Actions Setup](./github-actions.md)
 - [GitLab CI Setup](./gitlab-ci.md)
 - [Jenkins Setup](./jenkins.md)

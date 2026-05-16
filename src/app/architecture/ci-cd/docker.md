@@ -155,4 +155,3 @@ If you want to ignore vulnerabilities in the base image and only flag applicatio
 - [GitHub Actions Setup](./github-actions.md)
 - [GitLab CI Setup](./gitlab-ci.md)
 - [Jenkins Setup](./jenkins.md)
-- [CI/CD Integration Overview](./index.md)

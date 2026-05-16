@@ -192,7 +192,6 @@ henkaipan-scan:
 
 ## See Also
 
-- [CI/CD Integration Overview](./index.md)
 - [GitHub Actions Setup](./github-actions.md)
 - [Jenkins Setup](./jenkins.md)
 - [HenKaiPan Dashboard](/dashboard)
