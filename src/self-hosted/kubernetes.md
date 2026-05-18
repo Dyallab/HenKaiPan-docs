@@ -42,7 +42,6 @@ stringData:
   ADMIN_PASS: "<your-admin-password>"
   # Optional: License key
   # LICENSE_KEY: "HENKAI..."
-  # LICENSE_SIGNING_SECRET: "..."
 ```
 
 Generate secure values:

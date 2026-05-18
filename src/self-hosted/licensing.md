@@ -81,9 +81,6 @@ Add to your `.env` file:
 LICENSE_KEY=HENKAI...base64-encoded-key...
 ```
 
-> **Signing Secret**: The HMAC signing secret is embedded in the compiled binary.
-> You only need to set `LICENSE_KEY` — no `LICENSE_SIGNING_SECRET` required.
-
 ### 3. Restart the API
 
 ```bash
@@ -103,7 +100,6 @@ Or view it in the UI: **Settings → License**.
 ## Generating License Keys
 
 Use the `scripts/generate-license.sh` script in the **app** repository (not self-hosted).
-The signing secret is embedded in the script — keys it generates are compatible with the embedded binary secret.
 
 ### Basic usage
 
@@ -231,9 +227,7 @@ Payload schema:
 
 ## Security Notes
 
-1. **`LICENSE_SIGNING_SECRET` is required.** There is no default. Without it, no license key can be validated.
-2. **Keep the signing secret safe.** Anyone with access to it can generate valid license keys.
-3. **License keys are not tied to a specific instance.** A key can be shared — the trust model is that paying customers won't.
+1. **License keys are not tied to a specific instance.** A key can be shared — the trust model is that paying customers won't.
 
 ## FAQ
 
@@ -245,9 +239,6 @@ A: Yes — generate a new key with the desired features and update `LICENSE_KEY`
 
 **Q: Does the app phone home?**
 A: No. License validation is 100% offline. There is no telemetry.
-
-**Q: What's the `LICENSE_SIGNING_SECRET` default?**
-A: There is no default. It must be explicitly set. If not set, no license key can be validated and the app runs in free mode only.
 
 **Q: Can I run without any license key?**
 A: Yes. The app starts in free mode with all free features available. No license key is required.
