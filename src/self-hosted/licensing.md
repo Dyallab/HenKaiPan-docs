@@ -79,10 +79,10 @@ Add to your `.env` file:
 
 ```env
 LICENSE_KEY=HENKAI...base64-encoded-key...
-LICENSE_SIGNING_SECRET=your-signing-secret
 ```
 
-> **IMPORTANT**: `LICENSE_SIGNING_SECRET` is **required** and must match the secret used to generate the key. Without it, no license key can be validated.
+> **Signing Secret**: The HMAC signing secret is embedded in the compiled binary.
+> You only need to set `LICENSE_KEY` — no `LICENSE_SIGNING_SECRET` required.
 
 ### 3. Restart the API
 
@@ -102,16 +102,14 @@ Or view it in the UI: **Settings → License**.
 
 ## Generating License Keys
 
-Use the `scripts/generate-license.sh` script, which produces keys compatible with the API's offline validation.
-
-> **You need a signing secret.** Set it via `-s` flag or `LICENSE_SIGNING_SECRET` env var.
-> Without it, the script errors out.
+Use the `scripts/generate-license.sh` script in the **app** repository (not self-hosted).
+The signing secret is embedded in the script — keys it generates are compatible with the embedded binary secret.
 
 ### Basic usage
 
 ```bash
 # Generate a 365-day key with all paid features
-./scripts/generate-license.sh customer@example.com 365 -s "your-secret" \
+./scripts/generate-license.sh customer@example.com 365 \
   -f "scheduling,policies,compliance,integrations,ai-remediation,reports,audit-log,risk-acceptance,teams,comments,email-notifications"
 ```
 
@@ -121,7 +119,6 @@ Use the `scripts/generate-license.sh` script, which produces keys compatible wit
 |-----|-------------|---------|
 | `email` | License holder email (required) | — |
 | `days` | Validity period in days | `365` |
-| `-s` | HMAC signing secret (required) | `$LICENSE_SIGNING_SECRET` env var |
 | `-f` | Comma-separated feature flags | empty (no paid features) |
 
 ### Available feature flags
@@ -135,14 +132,13 @@ reports, audit-log, risk-acceptance, teams, comments, email-notifications
 
 ```bash
 # Single feature
-./scripts/generate-license.sh user@example.com 90 -s "mysecret" -f "scheduling"
+./scripts/generate-license.sh user@example.com 90 -f "scheduling"
 
 # Subset of features
-./scripts/generate-license.sh partner@example.com 180 -s "mysecret" \
+./scripts/generate-license.sh partner@example.com 180 \
   -f "scheduling,policies,compliance"
 
-# Using env var for secret
-export LICENSE_SIGNING_SECRET=mysecret
+# All features
 ./scripts/generate-license.sh admin@example.com 365 \
   -f "scheduling,policies,compliance,integrations"
 ```
