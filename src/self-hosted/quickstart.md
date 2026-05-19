@@ -25,7 +25,7 @@ Application Security Posture Management platform. Self-hosted edition.
 docker compose up -d
 
 # 3. Open http://localhost:8080
-#    Login with admin / admin (change after first login!)
+#    Login with the auto-generated admin password (shown at end of install.sh)
 ```
 
 ### Kubernetes (Production)

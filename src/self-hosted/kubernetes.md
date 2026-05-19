@@ -27,7 +27,7 @@ kubectl port-forward svc/henkaipan-api 8080:8080 -n henkaipan
 # Open http://localhost:8080
 ```
 
-**Default credentials:** `admin` / `admin`
+**Default credentials:** Admin password is auto-generated (random UUID v4). Check the API pod logs or the `henkaipan-secret` for the initial password.
 
 ## Production Deployment
 

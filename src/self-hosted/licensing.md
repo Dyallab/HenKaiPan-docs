@@ -196,7 +196,7 @@ r.With(licSvc.RequireFeature(license.FeatureScheduling)).Group(func(r chi.Router
 
 When a feature is not licensed:
 
-- **GET requests** from admin/analyst users **pass through** (so the UI can render navigation and forms)
+- **GET requests** from admin users **pass through** (so the UI can render navigation and forms)
 - **All other requests** return `402 Payment Required` with:
 
 ```json
