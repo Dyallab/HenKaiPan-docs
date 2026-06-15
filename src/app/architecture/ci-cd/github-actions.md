@@ -79,11 +79,14 @@ jobs:
 |-------|----------|---------|-------------|
 | `api-url` | Yes | — | Base URL of your HenKaiPan instance |
 | `api-key` | Yes | — | API token from HenKaiPan Settings |
-| `project-id` | Yes | — | UUID of the project to scan |
+| `project-id` | No | — | UUID of the project to scan. If omitted, auto-created from repo name |
+| `auto-create-project` | No | `true` | Auto-create project from repo name when `project-id` is empty |
 | `scanners` | No | `all` | Scanner names or packs |
 | `fail-on-severity` | No | — | Block pipeline on findings ≥ severity |
-| `scan-branch` | No | current branch | Git branch to scan |
+| `scan-branch` | No | — | Git branch to scan (defaults to current commit's branch) |
 | `post-pr-comment` | No | `true` | Post results summary to PR |
+| `cf-access-client-id` | No | — | Cloudflare Access Service Token Client ID |
+| `cf-access-client-secret` | No | — | Cloudflare Access Service Token Client Secret |
 
 ### Scanner Packs
 
