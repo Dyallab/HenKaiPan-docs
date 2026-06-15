@@ -40,8 +40,6 @@ stringData:
   JWT_SECRET: "<random-32-char-string>"
   SECRET_ENCRYPTION_KEY: "<random-64-char-hex-string>"
   ADMIN_PASS: "<your-admin-password>"
-  # Optional: License key
-  # LICENSE_KEY: "HENKAI..."
 ```
 
 Generate secure values:

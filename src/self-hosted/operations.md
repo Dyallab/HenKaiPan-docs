@@ -276,7 +276,7 @@ docker compose logs worker | grep -i "ai\|openrouter\|cloudflare\|ollama"
 | OpenRouter configured | Is `OPENROUTER_API_KEY` set? Is it valid? |
 | Cloudflare configured | Are `CF_ACCOUNT_ID` and `CF_API_TOKEN` correct? |
 | Provider selection | Are `AI_REMEDIATION_PROVIDER`, `AI_SUMMARY_PROVIDER`, `AI_VALIDATION_PROVIDER` set? |
-| Free tier | Ollama provides free AI summaries |
+| Ollama | Free self-hosted AI summaries, remediation, and validation |
 
 ### 12. Email Not Sending
 

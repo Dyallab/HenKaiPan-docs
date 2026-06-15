@@ -79,9 +79,9 @@ For Kubernetes deployments, environment variables are configured via `ConfigMap`
 
 The self-hosted edition supports multiple AI providers with different capabilities:
 
-**Free tier (no license key):**
-- **Ollama** (FREE, self-hosted) — Summary ONLY. Set `OLLAMA_URL` and `OLLAMA_MODEL`
-- Summary generation for findings is available without a license key
+- **Ollama** (FREE, self-hosted) — AI summaries, remediation, and validation. Set `OLLAMA_URL` and `OLLAMA_MODEL`
+- **OpenRouter** — AI summaries, remediation, and validation. Set `OPENROUTER_API_KEY`
+- **Cloudflare Workers AI** — AI summaries, remediation, and validation. Set `CF_ACCOUNT_ID` and `CF_API_TOKEN`
 - Use `./install.sh --skip-ollama` if you already have Ollama running elsewhere or don't need AI summaries
 
 ### Monitoring
