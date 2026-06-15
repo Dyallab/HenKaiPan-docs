@@ -505,9 +505,9 @@ Detailed platform-specific integration guides:
 
 Stack-specific workflow examples:
 
-- [Node.js](./ci-cd/node.md) — npm dependencies, semgrep, gitleaks
-- [Go](./ci-cd/go.md) — Go modules, semgrep, trivy, gitleaks
-- [Python](./ci-cd/python.md) — pip packages, semgrep, trivy, gitleaks
+- [Node.js](./ci-cd/quickstart.md#nodejs) — npm dependencies, semgrep, gitleaks
+- [Go](./ci-cd/quickstart.md#go) — Go modules, semgrep, trivy, gitleaks
+- [Python](./ci-cd/quickstart.md#python) — pip packages, semgrep, trivy, gitleaks
 - [Docker](./ci-cd/docker.md) — Container image scanning with trivy + grype
 
 ---
