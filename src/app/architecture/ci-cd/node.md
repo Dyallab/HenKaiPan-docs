@@ -122,7 +122,7 @@ coverage/
 |----------|----------|---------|-------------|
 | `api-url` | Yes | — | HenKaiPan instance URL |
 | `api-key` | Yes | — | API token |
-| `project-id` | Yes | — | Project UUID |
+| `project-id` | No | — | Project UUID. If omitted, auto-created from repo name |
 | `scanners` | No | `all` | Scanner list |
 | `fail-on-severity` | No | — | Minimum severity to block |
 

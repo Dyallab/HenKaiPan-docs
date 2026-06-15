@@ -125,7 +125,7 @@ node {
 |----------|----------|---------|-------------|
 | `HENKAIPAN_API_URL` | Yes | — | Base URL of your HenKaiPan instance |
 | `HENKAIPAN_API_KEY` | Yes | — | API token from HenKaiPan Settings |
-| `HENKAIPAN_PROJECT_ID` | Yes | — | UUID of the project to scan |
+| `HENKAIPAN_PROJECT_ID` | No | — | UUID of the project to scan. If omitted, auto-created from repo name |
 | `HENKAIPAN_SCANNERS` | No | `all` | Scanner names or packs |
 | `HENKAIPAN_FAIL_ON_SEVERITY` | No | — | Block pipeline on findings ≥ severity |
 | `HENKAIPAN_SCAN_BRANCH` | No | current branch | Git branch to scan |

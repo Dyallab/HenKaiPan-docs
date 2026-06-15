@@ -144,7 +144,7 @@ If you want to ignore vulnerabilities in the base image and only flag applicatio
 |----------|----------|---------|-------------|
 | `api-url` | Yes | — | HenKaiPan instance URL |
 | `api-key` | Yes | — | API token |
-| `project-id` | Yes | — | Project UUID |
+| `project-id` | No | — | Project UUID. If omitted, auto-created from repo name |
 | `scanners` | No | `all` | Use `containers` for image-only scan |
 | `fail-on-severity` | No | — | Minimum severity to block |
 

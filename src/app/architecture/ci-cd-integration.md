@@ -167,7 +167,7 @@ Content-Type: application/json
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `project_id` | string | Yes | Target project UUID |
+| `project_id` | string | No | Target project UUID. If omitted, auto-created from repo name |
 | `repo_url` | string | No | Git clone URL. Falls back to project's configured repo |
 | `scanners` | []string | No | Scanner names or packs. Defaults to `["all"]` |
 | `branch` | string | No | Git branch to scan. Appended as `repo_url#branch` |
@@ -342,7 +342,7 @@ jobs:
 |-------|----------|---------|-------------|
 | `api-url` | Yes | - | HenKaiPan instance URL |
 | `api-key` | Yes | - | API key from `/api/v1/tokens` |
-| `project-id` | Yes | - | Target project UUID |
+| `project-id` | No | - | Target project UUID. If omitted, auto-created from repo name |
 | `scanners` | No | `all` | Scanner names or packs |
 | `fail-on-severity` | No | - | Exit code 1 if findings >= severity |
 
