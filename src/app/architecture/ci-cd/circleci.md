@@ -251,9 +251,9 @@ If CircleCI runner and HenKaiPan are on the same internal network:
 
 ## Stack-Specific Examples
 
-- [Node.js](./node.md)
-- [Go](./go.md)
-- [Python](./python.md)
+- [Node.js](./quickstart.md#nodejs)
+- [Go](./quickstart.md#go)
+- [Python](./quickstart.md#python)
 - [Docker](./docker.md)
 
 ---

@@ -159,9 +159,9 @@ jobs:
 
 ## Stack-Specific Examples
 
-- [Node.js](./node.md)
-- [Go](./go.md)
-- [Python](./python.md)
+- [Node.js](./quickstart.md#nodejs)
+- [Go](./quickstart.md#go)
+- [Python](./quickstart.md#python)
 - [Docker](./docker.md)
 
 ---

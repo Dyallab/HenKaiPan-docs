@@ -52,9 +52,7 @@ export const app = {
     jenkins: 'app/architecture/ci-cd/jenkins.md',
     'circleci': 'app/architecture/ci-cd/circleci.md',
     docker: 'app/architecture/ci-cd/docker.md',
-    node: 'app/architecture/ci-cd/node.md',
-    python: 'app/architecture/ci-cd/python.md',
-    go: 'app/architecture/ci-cd/go.md',
+    quickstart: 'app/architecture/ci-cd/quickstart.md',
   },
 } as const;
 
