@@ -2,7 +2,7 @@
 
 Application Security Posture Management platform. Self-hosted edition.
 
-📚 **Documentation**: [Quickstart](https://henkaipan.dyallab.com.ar/docs/quickstart/) | [Licensing](https://henkaipan.dyallab.com.ar/docs/licensing/) | [Backup & Restore](https://henkaipan.dyallab.com.ar/docs/backup/)
+📚 **Documentation**: [Quickstart](https://henkaipan.dyallab.com.ar/docs/quickstart/) | [Backup & Restore](https://henkaipan.dyallab.com.ar/docs/backup/)
 
 ## Prerequisites
 
@@ -84,14 +84,6 @@ The self-hosted edition supports multiple AI providers with different capabiliti
 - Summary generation for findings is available without a license key
 - Use `./install.sh --skip-ollama` if you already have Ollama running elsewhere or don't need AI summaries
 
-**Paid features (require license key with `ai-remediation` feature):**
-- **Remediation** — Automated fix suggestions via OpenRouter, Cloudflare, or Ollama
-- **Validation** — AI-powered false positive detection
-
-Configure providers per task using `AI_REMEDIATION_PROVIDER`, `AI_SUMMARY_PROVIDER`, and `AI_VALIDATION_PROVIDER`.
-
-For a license key, contact **sales@dyallab.com.ar**.
-
 ### Monitoring
 
 Prometheus metrics are exposed on port `9090` (configurable via `PROMETHEUS_PORT`). Includes queue and database metrics collectors.
@@ -129,18 +121,6 @@ Redis-based rate limiting is enabled by default with per-endpoint tiers:
 
 Rate limit headers (`X-RateLimit-*`) are included in responses. The system fails open on Redis errors.
 
-## License Key
-
-The app runs in **free mode** without a license key — no time limit. Features available:
-
-- Unlimited projects & users
-- All scanners (SAST, SCA, Secrets, IaC, Containers)
-- Findings triage, SLA tracking, vulnerability inventory
-- Webhooks
-- **AI Summary** (via Ollama)
-
-For paid features (scheduling, policies, compliance, **AI remediation & validation**, integrations), request a license key at **sales@dyallab.com.ar**.
-
 ## Updating
 
 ```bash
@@ -162,5 +142,4 @@ For detailed production deployment instructions, see the [production deployment 
 ## Support
 
 - **Documentation**: https://henkaipan.dyallab.com.ar/docs/
-- **Sales & Licensing**: sales@dyallab.com.ar
 - **GitHub Issues**: Report bugs or feature requests

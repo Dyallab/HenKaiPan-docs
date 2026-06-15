@@ -276,7 +276,7 @@ docker compose logs worker | grep -i "ai\|openrouter\|cloudflare\|ollama"
 | OpenRouter configured | Is `OPENROUTER_API_KEY` set? Is it valid? |
 | Cloudflare configured | Are `CF_ACCOUNT_ID` and `CF_API_TOKEN` correct? |
 | Provider selection | Are `AI_REMEDIATION_PROVIDER`, `AI_SUMMARY_PROVIDER`, `AI_VALIDATION_PROVIDER` set? |
-| Free tier | Ollama summary works without license key. Remediation and validation require license key |
+| Free tier | Ollama provides free AI summaries |
 
 ### 12. Email Not Sending
 
@@ -373,4 +373,4 @@ Note: `pull_policy: always` will re-pull images on `docker compose up -d`, so pr
 
 - **Documentation**: https://henkaipan.dyallab.com.ar/docs/
 - **GitHub Issues**: https://github.com/Dyallab/HenKaiPan-self-hosted/issues
-- **Sales & Licensing**: sales@dyallab.com.ar
+

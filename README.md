@@ -13,7 +13,6 @@ docs/
 │   │   ├── quickstart.md      # Guía de inicio rápido
 │   │   ├── kubernetes.md      # Deploy en Kubernetes
 │   │   ├── production.md      # Deploy en producción (Docker Compose)
-│   │   ├── licensing.md       # Licensing y feature gating
 │   │   ├── backup.md          # Backup & Restore
 │   │   └── operations.md      # Operations guide
 │   ├── app/
@@ -104,7 +103,6 @@ Documentación para deployments self-hosted:
 | `quickstart.md` | Inicio rápido con Docker Compose |
 | `kubernetes.md` | Deploy en Kubernetes |
 | `production.md` | Guía de producción (nginx, TLS, backups) |
-| `licensing.md` | Licensing, feature flags, generación de keys |
 | `backup.md` | Backup & Restore de la base de datos |
 | `operations.md` | Operations: scaling, troubleshooting, maintenance |
 

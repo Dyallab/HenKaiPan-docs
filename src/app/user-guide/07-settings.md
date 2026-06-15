@@ -112,14 +112,6 @@ View all user actions:
 
 Filter by user, action type, or date range.
 
-## License (Self-Hosted)
-
-For self-hosted deployments:
-- Enter license key
-- View expiration date
-- Feature flags enabled
-- Support contact
-
 ---
 
 **Previous:** [← Compliance](/dashboard/documentation?page=compliance)  

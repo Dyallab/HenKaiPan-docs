@@ -368,4 +368,4 @@ Disk usage is dominated by Docker images (scanners). Actual database storage is 
 - [Kubernetes Deployment Guide](kubernetes.md) — K8s production deployment
 - [Quickstart](../README.md) — Getting started with Docker Compose
 - [Backup & Restore](https://henkaipan.dyallab.com.ar/docs/backup/) — Detailed backup procedures
-- [Licensing](https://henkaipan.dyallab.com.ar/docs/licensing/) — License key generation and feature gating
+

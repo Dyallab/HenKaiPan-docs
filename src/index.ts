@@ -24,7 +24,6 @@
 export const selfHosted = {
   quickstart: 'self-hosted/quickstart.md',
   kubernetes: 'self-hosted/kubernetes.md',
-  licensing: 'self-hosted/licensing.md',
   backup: 'self-hosted/backup.md',
   production: 'self-hosted/production.md',
   operations: 'self-hosted/operations.md',
