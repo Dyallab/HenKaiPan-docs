@@ -1,188 +1,75 @@
-# @henkaipan/docs
+# @dyallab/docs
 
-Documentación oficial de HenKaiPan ASPM (Application Security Posture Management).
+Centralized documentation package for HenKaiPan ASPM. Published to GitHub Packages.
 
-Este package centraliza toda la documentación de producto, deployment y diseño de HenKaiPan en un solo lugar, eliminando la duplicación entre los repositorios.
-
-## Estructura
-
-```
-docs/
-├── src/
-│   ├── self-hosted/
-│   │   ├── quickstart.md      # Guía de inicio rápido
-│   │   ├── kubernetes.md      # Deploy en Kubernetes
-│   │   ├── production.md      # Deploy en producción (Docker Compose)
-│   │   ├── backup.md          # Backup & Restore
-│   │   └── operations.md      # Operations guide
-│   ├── app/
-│   │   ├── user-guide/
-│   │   │   ├── 01-introduction.md
-│   │   │   ├── 02-dashboard.md
-│   │   │   ├── 03-findings.md
-│   │   │   ├── 04-scans.md
-│   │   │   ├── 05-projects.md
-│   │   │   ├── 06-compliance.md
-│   │   │   ├── 07-settings.md
-│   │   │   ├── 08-knowledge.md
-│   │   │   ├── 09-reports.md
-│   │   │   └── 10-system.md
-│   │   └── architecture/
-│   │       └── queue-architecture.md
-│   └── landing/
-│       └── design.md          # Design system (Scale)
-├── index.ts                   # Exports de paths
-├── package.json
-└── README.md
-```
-
-## Instalación
+## Install
 
 ```bash
-npm install @henkaipan/docs
+npm install @dyallab/docs --registry=https://npm.pkg.github.com
 ```
 
-O desde GitHub:
+Requires a `.npmrc` with GitHub auth:
 
-```bash
-npm install github:henkaipan/henkaipan/docs
+```
+@dyallab:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
 ```
 
-## Uso
-
-### Importar paths a archivos
+## Usage
 
 ```ts
-import { selfHosted, app, landing } from '@henkaipan/docs';
+import { selfHosted, app, landing } from '@dyallab/docs';
 
-// Acceder a archivos específicos
-const quickstartPath = selfHosted.quickstart;
-const kubernetesPath = selfHosted.kubernetes;
-const introPath = app.userGuide['01-introduction'];
-const queueArchPath = app.architecture.queue;
-const designPath = landing.design;
-```
+// Path to markdown file
+const path = selfHosted.quickstart;
 
-### Importar markdown directo (Astro/Next.js)
-
-```ts
-// Astro
-import quickstart from '@henkaipan/docs/self-hosted/quickstart.md';
-import dashboard from '@henkaipan/docs/app/user-guide/02-dashboard.md';
-
-// En componente Astro
-<Markdown content={quickstart} />
-```
-
-```tsx
-// Next.js
-import quickstart from '@henkaipan/docs/self-hosted/quickstart.md';
-
-export default function Page() {
-  return <Markdown>{quickstart}</Markdown>;
-}
-```
-
-### Leer contenido raw (Node.js)
-
-```ts
+// Read raw content
 import { readFileSync } from 'fs';
-import { selfHosted } from '@henkaipan/docs';
-
-const content = readFileSync(selfHosted.quickstart, 'utf-8');
+const content = readFileSync(path, 'utf-8');
 ```
 
-## Contenido
+### Astro (direct import)
 
-### Self-Hosted (`src/self-hosted/`)
+```astro
+---
+import quickstart from '@dyallab/docs/self-hosted/quickstart.md';
+---
 
-Documentación para deployments self-hosted:
+<article set:html={quickstart.compiledContent()} />
+```
 
-| Archivo | Descripción |
-|---------|-------------|
-| `quickstart.md` | Inicio rápido con Docker Compose |
-| `kubernetes.md` | Deploy en Kubernetes |
-| `production.md` | Guía de producción (nginx, TLS, backups) |
-| `backup.md` | Backup & Restore de la base de datos |
-| `operations.md` | Operations: scaling, troubleshooting, maintenance |
+## Structure
 
-### App User Guide (`src/app/user-guide/`)
+```
+src/
+├── self-hosted/
+│   ├── quickstart.md
+│   ├── kubernetes.md
+│   ├── production.md
+│   ├── backup.md
+│   └── operations.md
+├── app/
+│   ├── user-guide/        # 10 files (01-introduction → 10-system)
+│   └── architecture/
+│       ├── ci-cd/         # 6 files (github-actions → quickstart)
+│       ├── ci-cd-integration.md
+│       ├── mcp-integration.md
+│       └── queue-architecture.md
+└── landing/
+    └── design.md
+```
 
-Guía de usuario de la aplicación:
+## Versioning
 
-| Archivo | Descripción |
-|---------|-------------|
-| `01-introduction.md` | Bienvenida y overview |
-| `02-dashboard.md` | Dashboard y métricas |
-| `03-findings.md` | Gestión de findings |
-| `04-scans.md` | Ejecución de scans |
-| `05-projects.md` | Proyectos y repositorios |
-| `06-compliance.md` | Compliance frameworks |
-| `07-settings.md` | Configuración e integraciones |
-| `08-knowledge.md` | Knowledge Base |
-| `09-reports.md` | Reportes ejecutivos |
-| `10-system.md` | System status y health |
+[Semantic Versioning](https://semver.org/):
+- **Major**: Breaking changes to exported paths
+- **Minor**: New documentation added
+- **Patch**: Fixes, clarifications
 
-### App Architecture (`src/app/architecture/`)
-
-Documentación técnica de arquitectura:
-
-| Archivo | Descripción |
-|---------|-------------|
-| `queue-architecture.md` | Redis + Asynq, retry strategies, DLQ |
-
-### Landing (`src/landing/`)
-
-Documentación del design system:
-
-| Archivo | Descripción |
-|---------|-------------|
-| `design.md` | Scale design system (tokens, typography, colors) |
-
-## Versionamiento
-
-Este package sigue [Semantic Versioning](https://semver.org/):
-
-- **Major**: Cambios breaking en la estructura de docs o URLs
-- **Minor**: Nueva documentación agregada
-- **Patch**: Correcciones de typos o clarificaciones
-
-## Publicación
+## Development
 
 ```bash
-# Build (genera dist/ con types)
-npm run build
-
-# Publicar a npm
-npm publish --access public
+pnpm install
+pnpm build          # tsc → dist/
+pnpm publish        # --registry=https://npm.pkg.github.com
 ```
-
-## Desarrollo
-
-```bash
-# Instalar dependencias
-npm install
-
-# Build
-npm run build
-
-# Ver estructura
-ls -la src/
-```
-
-## Migración desde repos originales
-
-Este package reemplaza la documentación duplicada en:
-
-- `HenKaiPan-app/docs/` → migrado a `src/app/`
-- `HenKaiPan-self-hosted/docs/` → migrado a `src/self-hosted/`
-- `HenKaiPan-Landing/docs/` → migrado a `src/self-hosted/` y `src/landing/`
-
-Los repos originales deben:
-1. Eliminar los archivos `.md` duplicados
-2. Agregar `@henkaipan/docs` como dependencia
-3. Referenciar la documentación desde este package
-
-## License
-
-MIT
