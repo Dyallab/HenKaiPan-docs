@@ -93,8 +93,6 @@ server {
     add_header Strict-Transport-Security "max-age=63072000" always;
     add_header X-Content-Type-Options nosniff;
     add_header X-Frame-Options DENY;
-    add_header X-XSS-Protection "1; mode=block";
-
     # API and frontend
     location / {
         proxy_pass http://127.0.0.1:8080;
@@ -331,11 +329,17 @@ Before going live:
 ### Security
 
 - [ ] `COOKIE_SECURE=true` set in `.env`
+- [ ] `COOKIE_DOMAIN=.example.com` set for your domain
+- [ ] `COOKIE_SAMESITE=lax` (default) or `strict` for stricter CSRF protection
+- [ ] `CORS_ALLOWED_ORIGINS=https://aspm.example.com` set (comma-separated for multiple origins)
+- [ ] `TRUSTED_PROXIES` set if behind a reverse proxy (e.g. `10.0.0.0/8`)
+- [ ] `PUBLIC_API_BASE=` (empty) so API and frontend are served from same origin
 - [ ] Reverse proxy (nginx/caddy) with valid TLS certificate
 - [ ] Firewall restricts direct access to API port 8080
 - [ ] PostgreSQL and Redis ports not exposed to the internet
 - [ ] Strong random `JWT_SECRET` and `SECRET_ENCRYPTION_KEY` generated
 - [ ] `.env` file permissions: `chmod 600 .env`
+- [ ] Default credentials rotated (`ADMIN_USER`, `ADMIN_PASS`)
 
 ### Reliability
 

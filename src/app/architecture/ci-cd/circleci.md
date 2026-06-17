@@ -97,10 +97,6 @@ jobs:
 
       - run:
           name: Run HenKaiPan Security Scan
-          environment:
-            HENKAIPAN_API_URL: << pipeline.parameters.api-url >>
-            HENKAIPAN_API_KEY: << pipeline.parameters.api-key >>
-            HENKAIPAN_PROJECT_ID: << pipeline.parameters.project-id >>
           command: |
             docker run --rm \
               -e HENKAIPAN_API_URL="${HENKAIPAN_API_URL}" \
@@ -110,16 +106,9 @@ jobs:
               -e HENKAIPAN_FAIL_ON_SEVERITY="high" \
               dyallab/henkaipan-action:v1
 
-parameters:
-  api-url:
-    type: string
-    default: ""
-  api-key:
-    type: string
-    default: ""
-  project-id:
-    type: string
-    default: ""
+# Tip: Use CircleCI Contexts or Project Environment Variables
+# instead of pipeline parameters for secrets.
+# See: https://circleci.com/docs/set-environment-variable/
 
 workflows:
   security:

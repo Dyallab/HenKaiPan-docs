@@ -45,6 +45,7 @@ export const app = {
   architecture: {
     queue: 'app/architecture/queue-architecture.md',
     ciCdIntegration: 'app/architecture/ci-cd-integration.md',
+    mcpIntegration: 'app/architecture/mcp-integration.md',
   },
   ciCd: {
     'github-actions': 'app/architecture/ci-cd/github-actions.md',

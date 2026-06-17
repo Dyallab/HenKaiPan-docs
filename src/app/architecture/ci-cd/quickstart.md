@@ -14,8 +14,6 @@ Follow the [GitHub Actions Setup Guide](./github-actions.md) to create an API to
 
 Create `.github/workflows/security.yml` in your repository. Pick the setup step that matches your project:
 
-### Node.js
-
 ```yaml
 name: Security Scan
 
@@ -31,14 +29,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
+      # Adapt this step for your language:
+      #   Node.js: actions/setup-node@v4 → npm ci
+      #   Python:  actions/setup-python@v5 → pip install
+      #   Go:      actions/setup-go@v5 → go mod download
+      - name: Set up runtime & install dependencies
+        # ... language-specific setup ...
 
       - name: Run HenKaiPan Security Scan
         uses: dyallab/henkaipan-action@v1
@@ -50,78 +46,7 @@ jobs:
           fail-on-severity: high
 ```
 
-### Python
-
-```yaml
-name: Security Scan
-
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-jobs:
-  security:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: "pip"
-
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt --upgrade pip
-
-      - name: Run HenKaiPan Security Scan
-        uses: dyallab/henkaipan-action@v1
-        with:
-          api-url: ${{ secrets.HENKAIPAN_API_URL }}
-          api-key: ${{ secrets.HENKAIPAN_API_KEY }}
-          project-id: ${{ secrets.HENKAIPAN_PROJECT_ID }}
-          scanners: "semgrep,trivy,gitleaks"
-          fail-on-severity: high
-```
-
-### Go
-
-```yaml
-name: Security Scan
-
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-jobs:
-  security:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.22"
-          cache: true
-
-      - name: Download dependencies
-        run: go mod download
-
-      - name: Run HenKaiPan Security Scan
-        uses: dyallab/henkaipan-action@v1
-        with:
-          api-url: ${{ secrets.HENKAIPAN_API_URL }}
-          api-key: ${{ secrets.HENKAIPAN_API_KEY }}
-          project-id: ${{ secrets.HENKAIPAN_PROJECT_ID }}
-          scanners: "semgrep,trivy,gitleaks"
-          fail-on-severity: high
-```
+The scan step is **identical for all languages** — only the runtime setup varies. See the [GitHub Actions docs](https://docs.github.com/en/actions) for language-specific `setup-*` actions.
 
 ---
 
@@ -131,7 +56,7 @@ jobs:
 |---------|---------|--------|-----|
 | **semgrep** | Insecure code patterns, SQL injection, XSS, hardcoded secrets in JS/TS | Insecure code patterns, SQL injection, XSS, hardcoded secrets in Python | Insecure code patterns, SQL injection, command injection, hardcoded secrets in Go |
 | **trivy** | Vulnerable npm packages (known CVEs in dependencies) | Vulnerable pip packages (known CVEs in dependencies) | Vulnerable Go modules (known CVEs in dependencies) |
-| **gitleaks** | Secrets, API keys, tokens committed to the repository | Secrets, API keys, tokens committed to the repository | Secrets, API keys, tokens committed to the repository |
+| **gitleaks** | Secrets, API keys, tokens committed to the repository (all languages) |||
 
 ---
 
@@ -190,7 +115,7 @@ The HenKaiPan scan itself doesn't need build artifacts — semgrep and gitleaks 
 - name: Set up Go
   uses: actions/setup-go@v5
   with:
-    go-version: "1.22"
+    go-version: "1.26"
     cache: true
 - name: Set up workspace
   run: go work use ./...

@@ -2,7 +2,7 @@
 
 Application Security Posture Management platform. Self-hosted edition.
 
-📚 **Documentation**: [Quickstart](https://henkaipan.dyallab.com.ar/docs/quickstart/) | [Backup & Restore](https://henkaipan.dyallab.com.ar/docs/backup/)
+📚 **Documentation**: [Production Deployment](https://henkaipan.dyallab.com.ar/docs/self-hosted/production/) | [Backup & Restore](https://henkaipan.dyallab.com.ar/docs/backup/)
 
 ## Prerequisites
 
@@ -128,16 +128,11 @@ docker compose pull
 docker compose up -d
 ```
 
-Migrations run automatically on startup. See the [deployment guide](https://henkaipan.dyallab.com.ar/docs/quickstart/#updating) for rollback procedures.
+Migrations run automatically on startup. See the [production guide](https://henkaipan.dyallab.com.ar/docs/self-hosted/production/) for upgrade and rollback procedures.
 
 ## Production Checklist
 
-- [ ] Set `COOKIE_SECURE=true` behind HTTPS
-- [ ] Configure reverse proxy (nginx/caddy) with TLS
-- [ ] Set up database backups
-- [ ] Configure email notifications (SMTP)
-
-For detailed production deployment instructions, see the [production deployment guide](https://henkaipan.dyallab.com.ar/docs/quickstart/#production-deployment).
+See the [Production Deployment Guide](/docs/self-hosted/production/) for the full checklist covering security hardening, TLS, environment configuration, database backups, email notifications, and more.
 
 ## Support
 
