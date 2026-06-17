@@ -183,9 +183,7 @@ henkaipan-scan:
 
 ## Stack-Specific Examples
 
-- [Node.js](./quickstart.md#nodejs)
-- [Go](./quickstart.md#go)
-- [Python](./quickstart.md#python)
+- [GitHub Actions Workflows](./quickstart.md)
 - [Docker](./docker.md)
 
 ---
