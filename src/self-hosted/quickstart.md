@@ -70,6 +70,17 @@ Optional variables:
 |----------|-------------|---------|
 | `ADMIN_PASS` | Admin password (set on first run only) | `admin` |
 | `PROMETHEUS_PORT` | Prometheus metrics endpoint | `9090` |
+| `SSO_ENABLED` | Enable OIDC single sign-on | `false` |
+| `SSO_ISSUER_URL` | OIDC provider issuer URL | *(empty)* |
+| `SSO_CLIENT_ID` | OIDC client ID | *(empty)* |
+| `SSO_CLIENT_SECRET` | OIDC client secret (plaintext) | *(empty)* |
+| `SSO_REDIRECT_URI` | OIDC callback URL | `/api/auth/sso/callback` |
+| `SSO_GROUP_CLAIM` | Claim carrying group membership | `groups` |
+| `SSO_ADMIN_GROUP` | Group that maps to `admin` role | *(empty)* |
+
+### Single Sign-On (SSO)
+
+HenKaiPan supports SSO via any OpenID Connect (OIDC) provider (Authelia, Keycloak, Google Workspace, etc.). See the [SSO with Authelia guide](sso-authelia.md) for a complete Docker Compose walkthrough, including the Authelia configuration and a `docker-compose.authelia.yml` override.
 
 ### Kubernetes Configuration
 

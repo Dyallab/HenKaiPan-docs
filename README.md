@@ -47,7 +47,8 @@ src/
 │   ├── kubernetes.md
 │   ├── production.md
 │   ├── backup.md
-│   └── operations.md
+│   ├── operations.md
+│   └── sso-authelia.md
 ├── app/
 │   ├── user-guide/        # 10 files (01-introduction → 10-system)
 │   └── architecture/

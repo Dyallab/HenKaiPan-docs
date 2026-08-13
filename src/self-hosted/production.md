@@ -340,6 +340,7 @@ Before going live:
 - [ ] Strong random `JWT_SECRET` and `SECRET_ENCRYPTION_KEY` generated
 - [ ] `.env` file permissions: `chmod 600 .env`
 - [ ] Default credentials rotated (`ADMIN_USER`, `ADMIN_PASS`)
+- [ ] SSO configured with TLS-terminated `SSO_REDIRECT_URI` and matching IdP redirect URI (see [SSO with Authelia](sso-authelia.md))
 
 ### Reliability
 
