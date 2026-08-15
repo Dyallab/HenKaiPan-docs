@@ -72,7 +72,8 @@ flowchart LR
 ┌─────────────────────────────────────────────────────────┐
 │  API Router                                             │
 │                                                         │
-│  /api/health, /api/auth/*           → no auth           │
+│  /api/health, /api/auth/sso/status,       │
+│  /api/auth/*           → no auth           │
 │                                                         │
 │  /api/v1/scans/*                    → API Key Auth      │
 │    POST /external                   → CreateExternalScan│

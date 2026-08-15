@@ -363,11 +363,12 @@ Note: `pull_policy: always` will re-pull images on `docker compose up -d`, so pr
 
 ## Health Endpoints
 
-| Endpoint | What it checks |
-|----------|---------------|
-| `GET /api/health` | DB connectivity, Redis connectivity, worker status, disk space |
-| `GET /api/version` | Build version, commit hash, build date |
-| `GET /metrics` | Prometheus metrics (queue depth, request latency, DB pool) |
+| Endpoint | Auth | What it checks |
+|----------|------|---------------|
+| `GET /api/health` | Public | Overall status only (`ok`/`degraded`/`down`) — for Docker/K8s probes |
+| `GET /api/health/detailed` | JWT | DB connectivity, Redis connectivity, worker status, disk space |
+| `GET /api/version` | JWT | Build version, commit hash, build date |
+| `GET /metrics` | Public | Prometheus metrics (queue depth, request latency, DB pool) |
 
 ## Getting Help
 
