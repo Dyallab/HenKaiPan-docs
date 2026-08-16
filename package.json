@@ -1,6 +1,6 @@
 {
   "name": "@dyallab/docs",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "description": "Documentación oficial de HenKaiPan - User guides, deployment, arquitectura y diseño",
   "type": "module",
   "private": false,
@@ -13,7 +13,8 @@
     },
     "./self-hosted/*": "./src/self-hosted/*",
     "./app/*": "./src/app/*",
-    "./landing/*": "./src/landing/*"
+    "./landing/*": "./src/landing/*",
+    "./llms/*": "./src/llms/*"
   },
   "files": [
     "src",

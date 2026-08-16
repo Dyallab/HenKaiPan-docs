@@ -56,9 +56,17 @@ src/
 │       ├── ci-cd-integration.md
 │       ├── mcp-integration.md
 │       └── queue-architecture.md
-└── landing/
-    └── design.md
+├── landing/
+│   └── design.md
+└── llms/
+    └── mcp-tools.json
 ```
+
+### LLM artifacts
+
+`src/llms/mcp-tools.json` is a machine-readable catalog of the tools exposed by the
+HenKaiPan MCP server (`/v1/mcp`). It mirrors `HenKaiPan-app/internal/handlers/mcp.go`
+(`mcpToolsList`). Keep the two in sync when tools are added or their schemas change.
 
 ## Versioning
 

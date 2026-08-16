@@ -62,8 +62,13 @@ export const landing = {
   design: "landing/design.md",
 } as const;
 
+export const llms = {
+  mcpTools: "llms/mcp-tools.json",
+} as const;
+
 export type SelfHostedDoc = keyof typeof selfHosted;
 export type AppUserGuideDoc = keyof typeof app.userGuide;
 export type AppArchitectureDoc = keyof typeof app.architecture;
 export type AppCiCdDoc = keyof typeof app.ciCd;
+export type LlmsArtifact = keyof typeof llms;
 export type LandingDoc = keyof typeof landing;

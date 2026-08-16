@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HenKaiPan MCP Tools",
+  "description": "Machine-readable catalog of the tools exposed by the HenKaiPan MCP server at /v1/mcp. Keep in sync with HenKaiPan-app/internal/handlers/mcp.go (mcpToolsList).",
+  "transport": {
+    "type": "streamableHttp",
+    "protocolVersion": "2025-03-26",
+    "endpoint": "/v1/mcp",
+    "auth": {
+      "header": "X-API-Key",
+      "format": "hkp_<token>"
+    }
+  },
+  "tools": [
+    {
+      "name": "list_projects",
+      "description": "List all security projects with optional name filter or glob pattern",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "filter": {
+            "type": "string",
+            "description": "Optional text search across project name and URL"
+          },
+          "pattern": {
+            "type": "string",
+            "description": "Optional glob pattern (e.g. 'org/*', 'team-*')"
+          }
+        }
+      }
+    },
+    {
+      "name": "create_project",
+      "description": "Create a new security project for scanning",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Project name (required)"
+          },
+          "repo_url": {
+            "type": "string",
+            "description": "Git repository URL (e.g. https://github.com/org/repo)"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional project description"
+          },
+          "default_branch": {
+            "type": "string",
+            "description": "Default branch (default: main)"
+          }
+        },
+        "required": ["name"]
+      }
+    },
+    {
+      "name": "trigger_scan",
+      "description": "Start a security scan on a project. Scans run security scanners against the project's codebase to find vulnerabilities.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "description": "Project UUID (required)"
+          },
+          "scanners": {
+            "type": "string",
+            "description": "Comma-separated scanners or packs (required). Packs: 'all', 'sast', 'sca', 'secrets', 'iac', 'containers'. Individual: 'semgrep', 'gosec', 'trivy', 'grype', 'osv-scanner', 'gitleaks', 'trufflehog', 'checkov', 'tfsec', 'kics', 'nuclei'"
+          },
+          "branch": {
+            "type": "string",
+            "description": "Optional branch to scan (defaults to repo default)"
+          }
+        },
+        "required": ["project_id", "scanners"]
+      }
+    },
+    {
+      "name": "get_scan_status",
+      "description": "Get the status and findings of a security scan",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "scan_id": {
+            "type": "string",
+            "description": "Scan UUID (required)"
+          }
+        },
+        "required": ["scan_id"]
+      }
+    },
+    {
+      "name": "query_findings",
+      "description": "Search and filter security findings (vulnerabilities found by scanners)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "severity": {
+            "type": "string",
+            "description": "Comma-separated severity filter: critical,high,medium,low"
+          },
+          "status": {
+            "type": "string",
+            "description": "Filter by status: open,in_review,fixed,accepted_risk,verified"
+          },
+          "scanner": {
+            "type": "string",
+            "description": "Filter by scanner name (e.g. 'semgrep', 'trivy')"
+          },
+          "cve_id": {
+            "type": "string",
+            "description": "Filter by CVE identifier"
+          },
+          "page": {
+            "type": "number",
+            "description": "Page number for pagination (default: 1)"
+          },
+          "limit": {
+            "type": "number",
+            "description": "Results per page (default: 50, max: 200)"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_vulnerabilities",
+      "description": "List canonical vulnerabilities with cross-scanner correlation and filters",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "description": "Filter by project UUID"
+          },
+          "severity": {
+            "type": "string",
+            "description": "Comma-separated severity filter: critical,high,medium,low"
+          },
+          "status": {
+            "type": "string",
+            "description": "Filter by status: open,in_review,accepted_risk,fixed,verified"
+          },
+          "engine_type": {
+            "type": "string",
+            "description": "Filter by engine: SCA,SAST,Secrets,IaC,Containers,DAST"
+          },
+          "search": {
+            "type": "string",
+            "description": "Full-text search across title and CVE ID"
+          },
+          "page": {
+            "type": "number",
+            "description": "Page number (default: 1)"
+          },
+          "limit": {
+            "type": "number",
+            "description": "Results per page (default: 100, max: 200)"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_dashboard_summary",
+      "description": "Get high-level security metrics summary: total findings, critical/high counts, projects scanned, SLA compliance",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  ]
+}
