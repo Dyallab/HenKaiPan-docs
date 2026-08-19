@@ -59,7 +59,7 @@ Configure when to send emails:
 - Invite new users (admin only)
 - Assign roles: Admin, Analyst, Viewer
 - Reset passwords
-- Deactivate users
+- **Disable / enable users** — Toggle the `is_active` flag on a user account. Disabled users are blocked from logging in via password authentication and SSO, and their API keys are rejected. Existing sessions are invalidated when the account is toggled. The affected user receives an email notification and an in-app security event.
 
 ### Team Structure
 - Create teams (e.g., "Backend", "DevOps", "Security")
