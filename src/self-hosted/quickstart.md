@@ -77,6 +77,16 @@ Optional variables:
 | `SSO_REDIRECT_URI` | OIDC callback URL | `/api/auth/sso/callback` |
 | `SSO_GROUP_CLAIM` | Claim carrying group membership | `groups` |
 | `SSO_ADMIN_GROUP` | Group that maps to `admin` role | *(empty)* |
+| `HENKAIPAN_TIER` | Deployment plan label sent in telemetry pings | `self-hosted` |
+| `HENKAIPAN_INSTANCE_ID` | Telemetry instance identifier (managed deployments set to the tenant slug) | *(random UUID)* |
+
+### Telemetry
+
+HenKaiPan sends anonymous usage pings (project/user/scan counts, version) to `telemetry.dyallab.com.ar` once a day. Set `HENKAIPAN_TELEMETRY_ENABLED=false` to opt out.
+
+Self-hosted instances are anonymous by default: `HENKAIPAN_TIER` defaults to `self-hosted` and `HENKAIPAN_INSTANCE_ID` is a random UUID persisted to `data/instance_id`, so they cannot be cross-referenced to any account.
+
+Managed cloud/enterprise deployments set `HENKAIPAN_TIER` (`cloud`/`enterprise`) and `HENKAIPAN_INSTANCE_ID` to the tenant slug so pings join to the client registry. A self-hosted customer migrating to cloud begins a fresh, identifiable cloud identity; their prior anonymous self-hosted history is intentionally not linked.
 
 ### Single Sign-On (SSO)
 
