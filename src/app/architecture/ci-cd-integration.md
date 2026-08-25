@@ -82,6 +82,7 @@ flowchart LR
 │  /api/v1/tokens/*                   → JWT Auth          │
 │    GET    /tokens                   → ListTokens        │
 │    POST   /tokens                   → CreateToken       │
+│    POST   /tokens/{id}/rotate       → RotateToken       │
 │    DELETE /tokens/{id}              → DeleteToken       │
 │                                                         │
 │  /api/scans, /api/findings, etc.    → JWT Auth          │
@@ -261,6 +262,22 @@ Revoke a token. Only the token creator can revoke.
 }
 ```
 
+#### `POST /api/v1/tokens/{id}/rotate`
+
+Rotate a token's secret in place, preserving its name and project scope. The old secret is revoked immediately (its bcrypt hash is overwritten). Only the token creator can rotate.
+
+**Response (200 OK):**
+```json
+{
+  "token": "hkp_new456abc789...",
+  "id": "token-uuid",
+  "name": "ci-pipeline-token",
+  "prefix": "hkp_new456ab"
+}
+```
+
+⚠️ **The new token value is only shown once at rotation time.** Store it securely immediately. The old secret stops working the moment rotation succeeds.
+
 ---
 
 ## 4. Shared Scan Creation Logic
@@ -435,7 +452,7 @@ Full token never stored in plaintext
 ### ✅ DO
 
 - Use project-scoped tokens for CI pipelines (limits blast radius)
-- Rotate tokens periodically (revoke old, create new)
+- Rotate tokens periodically via `POST /api/v1/tokens/{id}/rotate` (preserves scope, revokes old secret)
 - Store tokens as GitHub Secrets / GitLab Variables — never in code
 - Set `expires_at` for temporary pipelines
 - Use `fail-on-severity` to block merges on critical findings
@@ -515,9 +532,9 @@ Stack-specific workflow examples:
 
 | File | Purpose |
 |------|---------|
-| `internal/handlers/tokens.go` | Token CRUD + external scan endpoints + `APIKeyAuth` middleware |
+| `internal/handlers/tokens.go` | Token CRUD + rotation + external scan endpoints + `APIKeyAuth` middleware |
 | `internal/handlers/scans.go` | `resolveScanners()` + `createScanRecords()` shared helper |
-| `internal/repository/tokens.go` | Token repository (generate, hash, lookup, delete) |
+| `internal/repository/tokens.go` | Token repository (generate, hash, lookup, rotate, delete) |
 | `internal/repository/interfaces.go` | `TokenRepository` interface + `Token` struct |
 | `cmd/api/main.go` | Route registration (`/api/v1/scans/*`, `/api/v1/tokens/*`) |
 | `migrations/035_api_tokens.sql` | Database schema for `api_tokens` table |
