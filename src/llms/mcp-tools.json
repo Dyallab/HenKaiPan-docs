@@ -4,7 +4,7 @@
   "description": "Machine-readable catalog of the tools exposed by the HenKaiPan MCP server at /v1/mcp. Keep in sync with HenKaiPan-app/internal/handlers/mcp.go (mcpToolsList).",
   "transport": {
     "type": "streamableHttp",
-    "protocolVersion": "2025-03-26",
+    "protocolVersion": "2026-07-28",
     "endpoint": "/v1/mcp",
     "auth": {
       "header": "X-API-Key",

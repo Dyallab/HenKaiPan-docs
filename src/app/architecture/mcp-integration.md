@@ -79,21 +79,21 @@ Ask your LLM: *"List my projects in HenKaiPan"* or *"Show me the dashboard summa
 
 ## Protocol
 
-The MCP server uses **Streamable HTTP transport** (MCP protocol version 2025-03-26) with JSON-RPC 2.0 messages.
+The MCP server uses **Streamable HTTP transport** (MCP protocol version 2026-07-28) with JSON-RPC 2.0 messages.
 
-All requests are `POST` to `/v1/mcp`. Session state is maintained via the `MCP-Session-Id` response header returned after `initialize`.
+The server is **stateless** (modern era): there is no `initialize` handshake and no server-side session state. Every request is self-contained and carries its protocol version as the `MCP-Protocol-Version` HTTP header plus the `_meta['io.modelcontextprotocol/protocolVersion']` body field. Each request is authenticated solely by the `X-API-Key` token.
 
 ### Connection flow
 
-1. **POST `/v1/mcp`** with `initialize` JSON-RPC request
-2. Server responds with `MCP-Session-Id: mcp_<tokenID>_<timestamp>` header + capabilities
-3. **All subsequent POSTs** to `/v1/mcp` must include the `MCP-Session-Id` header
-4. Sessions are bound to the token that created them — the same `X-API-Key` must be used
+1. **POST `/v1/mcp`** — each JSON-RPC request is its own HTTP POST.
+2. Include the required transport headers on every request: `MCP-Protocol-Version`, `Mcp-Method`, and (for `tools/call`) `Mcp-Name`.
+3. The protocol version in the header must match the `_meta` value in the body; mismatches return `400 HeaderMismatch` (`-32020`).
+4. No `MCP-Session-Id` header is involved — there are no sessions.
 
-### Session limits
+### Discovery and tools
 
-- Max 5 concurrent sessions per API token
-- Sessions are in-memory (survive until server restart or inactivity)
+- `server/discover` returns the supported protocol versions, server identity, and capabilities. Clients MAY call it first, or invoke any RPC inline and handle `UnsupportedProtocolVersionError` (`-32022`) if their version is unsupported.
+- `tools/list` returns the 7 tools below; `tools/call` invokes one by name.
 
 ## Authentication
 
@@ -109,40 +109,49 @@ X-API-Key: hkp_<64-hex-chars>
 
 ## Examples
 
-### Initialize session
+### Discover the server
 
 ```bash
 curl -X POST https://your-instance.com/v1/mcp \
   -H "X-API-Key: hkp_..." \
   -H "Content-Type: application/json" \
+  -H "MCP-Protocol-Version: 2026-07-28" \
+  -H "Mcp-Method: server/discover" \
   -d '{
     "jsonrpc": "2.0",
     "id": 1,
-    "method": "initialize",
+    "method": "server/discover",
     "params": {
-      "protocolVersion": "2025-03-26",
-      "clientInfo": { "name": "test-client", "version": "1.0.0" },
-      "capabilities": {}
+      "_meta": {
+        "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+        "io.modelcontextprotocol/clientInfo": { "name": "test-client", "version": "1.0.0" }
+      }
     }
   }'
 ```
 
-The response includes the `MCP-Session-Id` header — save this for subsequent requests.
+The response advertises the supported protocol versions, server identity, and the `tools` capability. No session is created — each subsequent request is independent.
 
 ### List projects
 
 ```bash
 curl -X POST https://your-instance.com/v1/mcp \
   -H "X-API-Key: hkp_..." \
-  -H "MCP-Session-Id: mcp_xxx_yyy" \
   -H "Content-Type: application/json" \
+  -H "MCP-Protocol-Version: 2026-07-28" \
+  -H "Mcp-Method: tools/call" \
+  -H "Mcp-Name: list_projects" \
   -d '{
     "jsonrpc": "2.0",
     "id": 2,
     "method": "tools/call",
     "params": {
       "name": "list_projects",
-      "arguments": {}
+      "arguments": {},
+      "_meta": {
+        "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+        "io.modelcontextprotocol/clientInfo": { "name": "test-client", "version": "1.0.0" }
+      }
     }
   }'
 ```
@@ -152,8 +161,10 @@ curl -X POST https://your-instance.com/v1/mcp \
 ```bash
 curl -X POST https://your-instance.com/v1/mcp \
   -H "X-API-Key: hkp_..." \
-  -H "MCP-Session-Id: mcp_xxx_yyy" \
   -H "Content-Type: application/json" \
+  -H "MCP-Protocol-Version: 2026-07-28" \
+  -H "Mcp-Method: tools/call" \
+  -H "Mcp-Name: trigger_scan" \
   -d '{
     "jsonrpc": "2.0",
     "id": 3,
@@ -163,6 +174,10 @@ curl -X POST https://your-instance.com/v1/mcp \
       "arguments": {
         "project_id": "<project-uuid>",
         "scanners": "sast,sca,secrets"
+      },
+      "_meta": {
+        "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+        "io.modelcontextprotocol/clientInfo": { "name": "test-client", "version": "1.0.0" }
       }
     }
   }'
@@ -173,8 +188,10 @@ curl -X POST https://your-instance.com/v1/mcp \
 ```bash
 curl -X POST https://your-instance.com/v1/mcp \
   -H "X-API-Key: hkp_..." \
-  -H "MCP-Session-Id: mcp_xxx_yyy" \
   -H "Content-Type: application/json" \
+  -H "MCP-Protocol-Version: 2026-07-28" \
+  -H "Mcp-Method: tools/call" \
+  -H "Mcp-Name: query_findings" \
   -d '{
     "jsonrpc": "2.0",
     "id": 4,
@@ -185,6 +202,10 @@ curl -X POST https://your-instance.com/v1/mcp \
         "severity": "critical,high",
         "status": "open",
         "limit": 10
+      },
+      "_meta": {
+        "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+        "io.modelcontextprotocol/clientInfo": { "name": "test-client", "version": "1.0.0" }
       }
     }
   }'
@@ -195,16 +216,18 @@ curl -X POST https://your-instance.com/v1/mcp \
 | Symptom | Cause | Fix |
 |---------|-------|-----|
 | `401 Unauthorized` | Missing or invalid token | Check `X-API-Key` header — must be `hkp_<token>` |
-| `400 MCP-Session-Id header required` | Request after `initialize` without session header | Include `MCP-Session-Id` header from initialize response |
-| `session not found or expired` | Session expired or wrong session ID | Re-initialize (POST `initialize` again) |
+| `400 HeaderMismatch (-32020)` | `MCP-Protocol-Version`, `Mcp-Method`, or `Mcp-Name` header missing or not matching the body | Send the required headers on every request; ensure the header value equals the body `method`/`params.name` |
+| `400 UnsupportedProtocolVersionError (-32022)` | Requested protocol version not supported, or legacy `initialize` sent | Retry with a version from `data.supported` (currently `2026-07-28`); the server is modern-only and has no `initialize` handshake |
+| `403 Forbidden` | Invalid `Origin` header (DNS-rebinding guard) | The `Origin` must be in the server's allowed list; browser clients use an allowed origin, desktop clients omit it |
+| `404 Method not found (-32601)` | Unknown JSON-RPC method | Use `server/discover`, `tools/list`, or `tools/call` |
 | `405 Method Not Allowed` | Using GET instead of POST | All MCP requests must use POST |
-| `429 Too Many Requests` | Max 5 sessions per token exceeded | Close unused sessions or wait for timeout |
 | Tool returns error | Wrong project_id or scanner name | Verify UUID format and scanner names |
 
 ## Security
 
 - All requests require a valid API token via `X-API-Key` header
-- Sessions are bound to the creating token — cross-token session hijacking is prevented
+- The server is stateless — every request is authenticated independently; there are no sessions to hijack
+- The `Origin` header is validated when present to prevent DNS-rebinding attacks
 - Token scoping applies: project-scoped tokens can only access their assigned project
 - Tokens are hashed (bcrypt) at rest
 - No JWT or user session required — designed for CI/CD and agent use
