@@ -62,6 +62,8 @@ export const landing = {
   design: "landing/design.md",
 } as const;
 
+export { pricing } from "./pricing.js";
+
 export const llms = {
   mcpTools: "llms/mcp-tools.json",
 } as const;
