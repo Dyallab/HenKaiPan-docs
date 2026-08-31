@@ -189,3 +189,4 @@ dist/
 - [GitLab CI Setup](./gitlab-ci.md)
 - [Jenkins Setup](./jenkins.md)
 - [Docker Scan](./docker.md)
+- [HenKaiPan CLI](./cli.md) — standalone `henkaipan` binary for terminal use, arbitrary CI runners, and scripted workflows

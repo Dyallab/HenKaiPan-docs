@@ -55,6 +55,8 @@ export const app = {
     circleci: "app/architecture/ci-cd/circleci.md",
     docker: "app/architecture/ci-cd/docker.md",
     quickstart: "app/architecture/ci-cd/quickstart.md",
+    cli: "app/architecture/ci-cd/cli.md",
+    "cli-commands": "app/architecture/ci-cd/cli-commands.md",
   },
 } as const;
 
