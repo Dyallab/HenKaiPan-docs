@@ -90,6 +90,10 @@ The server is **stateless** (modern era): there is no `initialize` handshake and
 3. The protocol version in the header must match the `_meta` value in the body; mismatches return `400 HeaderMismatch` (`-32020`).
 4. No `MCP-Session-Id` header is involved — there are no sessions.
 
+Because there is no session state, any API replica can serve any request: no
+sticky sessions are needed when running several replicas behind a load
+balancer (see [Horizontal Scaling](../../self-hosted/kubernetes.md#horizontal-scaling-api)).
+
 ### Discovery and tools
 
 - `server/discover` returns the supported protocol versions, server identity, and capabilities. Clients MAY call it first, or invoke any RPC inline and handle `UnsupportedProtocolVersionError` (`-32022`) if their version is unsupported.

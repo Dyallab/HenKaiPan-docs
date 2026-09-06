@@ -181,6 +181,28 @@ kubectl scale deployment api -n henkaipan --replicas=3
 
 **Note:** Worker should typically remain at 1 replica to avoid duplicate job processing.
 
+API replicas are interchangeable — **no sticky sessions required**. All shared
+state lives in PostgreSQL + Redis, not in the API process:
+
+- **Auth**: API tokens are validated per request against Postgres (bcrypt); JWT
+  token versions are read from the database.
+- **Rate limiting**: Redis-backed token bucket (atomic Lua script), shared by
+  all replicas. Note: if Redis is unreachable the limiter fails closed and
+  requests are denied.
+- **Real-time updates (SSE)**: fanned out over the Redis `aspm:events` channel,
+  so events reach clients regardless of which replica they are connected to.
+  An SSE stream is a long-lived connection pinned to one replica, but that is
+  not state — on reconnect the client lands on any replica.
+- **MCP (`/v1/mcp`)**: fully stateless — no `MCP-Session-Id` is ever minted.
+  Every JSON-RPC request carries its own `X-API-Key` and protocol version, so
+  any replica can serve any request.
+- **No in-process caches**: the API keeps no local caches.
+- **Migrations** run at API startup under Postgres advisory locks, so several
+  replicas starting at once don't conflict.
+
+Requirement: all replicas must share the same PostgreSQL, Redis, `JWT_SECRET`,
+and `SECRET_ENCRYPTION_KEY`.
+
 ### Resource Limits
 
 Adjust resource requests/limits in the deployment manifests based on your workload:
